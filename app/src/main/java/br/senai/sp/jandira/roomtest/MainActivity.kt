@@ -2,14 +2,16 @@ package br.senai.sp.jandira.roomtest
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import br.senai.sp.jandira.roomtest.adapter.ContatoAdapter
 import br.senai.sp.jandira.roomtest.dao.AppDataBase
+import br.senai.sp.jandira.roomtest.dao.Database
 import br.senai.sp.jandira.roomtest.model.Contato
-import org.jetbrains.anko.find
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -21,7 +23,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var dialog: AlertDialog
 
-    private lateinit var txtLista: TextView
+    private lateinit var recyclerContatos : RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,9 +31,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         buttonNovoContato = findViewById(R.id.button_novo_contato)
         buttonNovoContato.setOnClickListener(this)
+        recyclerContatos = findViewById(R.id.recycler_contatos)
 
-        txtLista = findViewById(R.id.text_lista)
-        txtLista.setOnClickListener(this)
+        exibirContatos()
 
     }
 
@@ -49,22 +51,33 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun exibirContatos() {
-        val db = Room.databaseBuilder(this, AppDataBase :: class.java, "db_contato").allowMainThreadQueries().build()
 
-        val contatoDao = db.ContatoDao()
+
+        val contatoDao = Database.getDatabase(this).contatoDao()
         val contatos = contatoDao.ListarTodos()
 
-        for(contato in contatos){
-            txtLista.text = "${txtLista.text} - ${contato.nomeContato}"
-        }
+        // *** Definir o layout da Recyclerview
+        recyclerContatos.layoutManager = LinearLayoutManager(this)
+
+        // *** Instanciar o Adapter que será ultilizado pela RecycleView
+        // *** Para carregar os dados
+        val adapter = ContatoAdapter()
+        adapter.carregarLista(contatos)
+
+        // *** Definir o adapter que será usado pela recyclerView
+        recyclerContatos.adapter = adapter
     }
 
     private fun salvarContato() {
         var contato = Contato(0, editNome.text.toString(), editTelefone.text.toString())
 
-        val db = Room.databaseBuilder(this, AppDataBase :: class.java, "db_contato").allowMainThreadQueries().build()
-        val contatoDao = db.ContatoDao()
+        //val db = Room.databaseBuilder(this, AppDataBase :: class.java, "db_contato").allowMainThreadQueries().build()
+        val contatoDao = Database.getDatabase(this).contatoDao()
         contatoDao.salvar(contato)
+
+        exibirContatos()
+
+        dialog.dismiss()
     }
 
     private fun abrirCadastroContato() {

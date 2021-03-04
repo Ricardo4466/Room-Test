@@ -11,7 +11,7 @@ interface ContatoDao {
     @Update
     fun atualizaContato (contato:Contato)
 
-    @Query ("SELECT * FROM contato ORDER BY nome ASC")
+    @Query ("SELECT * FROM contato ORDER BY id ASC")
     fun ListarTodos (): List<Contato>
 
     @Query ("SELECT * FROM contato WHERE id = :id")

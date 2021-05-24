@@ -20,8 +20,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var editTelefone: EditText
     private lateinit var buttonSalvar: Button
     private lateinit var buttonCancelar: Button
-
     private lateinit var dialog: AlertDialog
+
 
     private lateinit var recyclerContatos : RecyclerView
 
